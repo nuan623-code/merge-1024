@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>1024 小游戏</title>
+    <style>
+      :root {
+        --bg: #faf8ef;
+        --board: #bbada0;
+        --grid: #cdc1b4;
+        --text-dark: #776e65;
+        --text-light: #f9f6f2;
+        --gap: 10px;
+        --cell: 72px;
+        --radius: 8px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+          Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+        background: var(--bg);
+        color: var(--text-dark);
+        display: flex;
+        justify-content: center;
+        min-height: 100vh;
+      }
+      .app {
+        width: min(92vw, 420px);
+        padding: 20px 16px 28px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        letter-spacing: 1px;
+      }
+      .info {
+        display: flex;
+        gap: 8px;
+      }
+      .card {
+        background: #eee4da;
+        border-radius: 6px;
+        padding: 6px 10px;
+        text-align: center;
+        min-width: 70px;
+      }
+      .card span {
+        display: block;
+        font-size: 11px;
+        opacity: 0.7;
+      }
+      .card strong {
+        font-size: 18px;
+      }
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 8px 0 12px;
+        gap: 10px;
+      }
+      .btn {
+        border: 0;
+        background: #8f7a66;
+        color: #fff;
+        padding: 8px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .hint {
+        font-size: 12px;
+        opacity: 0.75;
+      }
+      .board {
+        position: relative;
+        background: var(--board);
+        padding: var(--gap);
+        border-radius: var(--radius);
+        touch-action: none;
+        user-select: none;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, var(--cell));
+        grid-template-rows: repeat(4, var(--cell));
+        gap: var(--gap);
+      }
+      .cell {
+        background: var(--grid);
+        border-radius: var(--radius);
+      }
+      .tile {
+        position: absolute;
+        width: var(--cell);
+        height: var(--cell);
+        top: var(--gap);
+        left: var(--gap);
+        z-index: 1;
+        transition: transform 250ms ease-in-out, opacity 250ms ease-in-out;
+      }
+      .tile-inner {
+        width: 100%;
+        height: 100%;
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 24px;
+        /* font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
+          system-ui, sans-serif; */
+      }
+      /* .tile-inner::after {
+        content: attr(data-fruit);
+        color: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+      } */
+      .tile.pop .tile-inner {
+        animation: pop 220ms ease-in-out;
+      }
+      .tile.fade {
+        opacity: 0;
+      }
+      @keyframes pop {
+        0% {
+          transform: scale(0.6);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .overlay {
+        position: absolute;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(238, 228, 218, 0.85);
+        border-radius: var(--radius);
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+        z-index: 2;
+      }
+      .overlay.show {
+        display: flex;
+      }
+      .overlay-actions {
+        display: flex;
+        gap: 10px;
+      }
+      .btn.ghost {
+        background: #b8a99a;
+      }
+      .ad-slot {
+        margin-top: 16px;
+        border: 2px dashed #d4c6b7;
+        border-radius: 8px;
+        padding: 16px;
+        text-align: center;
+        color: #aa9a8a;
+        font-size: 13px;
+      }
+      @media (max-width: 430px) {
+        :root {
+          --cell: 64px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <h1>1024</h1>
+        <div class="info">
+          <div class="card">
+            <span>分数</span>
+            <strong id="score">0</strong>
+          </div>
+          <div class="card">
+            <span>最佳</span>
+            <strong id="best">0</strong>
+          </div>
+        </div>
+      </header>
+      <div class="controls">
+        <button class="btn" id="restart">重新开始</button>
+        <div class="hint">方向键 / 滑动操作</div>
+      </div>
+      <div class="board" id="board">
+        <div class="grid" aria-hidden="true">
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+        </div>
+        <div class="overlay" id="overlay">
+          <div id="result-text">游戏结束</div>
+          <div class="overlay-actions">
+            <button class="btn" id="retry">重新开始</button>
+            <button class="btn ghost" id="continue">继续（占位）</button>
+          </div>
+        </div>
+      </div>
+      <div class="ad-slot">预留广告位（后续可替换）</div>
+    </div>
+    <script src="game.js"></script>
+  </body>
+</html>
